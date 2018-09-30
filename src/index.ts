@@ -34,7 +34,7 @@ export class MaxAgeLink extends ApolloLink {
     const ctx = op.getContext();
     const isQuery = (getMainDefinition(op.query) as OperationDefinitionNode).operation === 'query';
 
-    if (!isQuery || !ctx.maxAge) {
+    if (!isQuery || !ctx.maxAge || ctx.force === true) {
       return forward(op);
     }
 
@@ -53,7 +53,7 @@ export class MaxAgeLink extends ApolloLink {
     return new Observable(observer => {
       try {
         const data = this.options.cache.readQuery({
-          query: op.query,
+          query: ctx.query || op.query,
           variables: op.variables,
         });
 
