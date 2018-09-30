@@ -12,7 +12,11 @@
     "type": "git",
     "url": "kamilkisiela/apollo-link-maxage"
   },
-  "keywords": ["apollo", "graphql", "apollo-link"],
+  "keywords": [
+    "apollo",
+    "graphql",
+    "apollo-link"
+  ],
   "scripts": {
     "test": "yarn build",
     "prepublishOnly": "yarn build",
