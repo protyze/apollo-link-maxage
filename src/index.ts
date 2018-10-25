@@ -50,19 +50,24 @@ export class MaxAgeLink extends ApolloLink {
       return forward(op);
     }
 
-    return new Observable(observer => {
-      try {
+    try {
         const data = this.options.cache.readQuery({
-          query: ctx.query || op.query,
-          variables: op.variables,
+            query: ctx.query || op.query,
+            variables: op.variables,
         });
 
-        observer.next({ data });
-        observer.complete();
-      } catch (e) {
-        observer.error(e);
-      }
-    });
+        return new Observable(observer => {
+            try {
+                observer.next({ data });
+                observer.complete();
+            } catch (e) {
+                observer.error(e);
+            }
+        });
+    } catch (e) {
+        // Query not in cache, do the network request
+        return forward(op);
+    }
   }
 
   private shouldUseNetwork(key: string): boolean {
