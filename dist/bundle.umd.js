@@ -35,7 +35,6 @@
             return _this;
         }
         MaxAgeLink.prototype.request = function (op, forward) {
-            var _this = this;
             var ctx = op.getContext();
             var isQuery = apolloUtilities.getMainDefinition(op.query).operation === 'query';
             if (!isQuery || !ctx.maxAge || ctx.force === true) {
@@ -49,19 +48,25 @@
                 this.schedule(key, expirationDate);
                 return forward(op);
             }
-            return new apolloLink.Observable(function (observer) {
-                try {
-                    var data = _this.options.cache.readQuery({
-                        query: ctx.query || op.query,
-                        variables: op.variables,
-                    });
-                    observer.next({ data: data });
-                    observer.complete();
-                }
-                catch (e) {
-                    observer.error(e);
-                }
-            });
+            try {
+                var data_1 = this.options.cache.readQuery({
+                    query: ctx.query || op.query,
+                    variables: op.variables,
+                });
+                return new apolloLink.Observable(function (observer) {
+                    try {
+                        observer.next({ data: data_1 });
+                        observer.complete();
+                    }
+                    catch (e) {
+                        observer.error(e);
+                    }
+                });
+            }
+            catch (e) {
+                // Query not in cache, do the network request
+                return forward(op);
+            }
         };
         MaxAgeLink.prototype.shouldUseNetwork = function (key) {
             return this.isExpired(key) || !this.scheduled.has(key);
